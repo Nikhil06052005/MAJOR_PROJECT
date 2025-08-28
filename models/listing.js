@@ -13,13 +13,8 @@ const listingSchema = new Schema({
     required: true,
   },
   image: {
-    type: String,
-    default:
-      "https://amazingarchitecture.com/storage/files/1/architecture-firms/amin-moazzen/black-fly/black_house_amin_moazzen_bangal_india-3.jpg",
-    set: (v) =>
-      v === ""
-        ? "https://amazingarchitecture.com/storage/files/1/architecture-firms/amin-moazzen/black-fly/black_house_amin_moazzen_bangal_india-3.jpg"
-        : v,
+    url: String,
+    filename: String,
   },
   price: Number,
   location: String,
