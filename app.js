@@ -1,3 +1,4 @@
+//BASIC IMPORTS
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -11,14 +12,15 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 
-
-const listingRouter = require("./routes/listing.js");
-const reviewRouter = require("./routes/review.js");
-const userRouter = require("./routes/user.js");
+//ROUTERS
+const listingRouter = require("./routes/listing.js"); //LISTING RELATED ROUTES
+const reviewRouter = require("./routes/review.js"); //REVIEWS RELATED ROUTES
+const userRouter = require("./routes/user.js"); //LOGIN/REGISTER/LOGOUT ROUTES
 
 //MONGO_DB SE CONNECTION KA CHIJ H YHA PE
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
+//AGAR CONNECT HUA TOH "CONNECTED TO DB PRINT HOGA" VARNA "ERROR" PRINT HOGA
 main()
   .then(() => {
     console.log("connected to DB");
@@ -30,12 +32,18 @@ async function main() {
   await mongoose.connect(MONGO_URL);
 }
 
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
-app.engine("ejs", ejsMate);
-app.use(express.static(path.join(__dirname, "/public")));
+//APP CONFIG
+app.set("view engine", "ejs");  //TEMPLATING ENGINE SET
+app.set("views", path.join(__dirname, "views"));  //VIEW FOLDER PAT SET
+app.use(express.urlencoded({ extended: true }));  //FORM DATA READ KRNE KE LIYE
+app.use(methodOverride("_method")); //PUT/DELETE REQUESTS ALLOW
+app.engine("ejs", ejsMate); //LAYOUTS/PARTIALS ALLOW
+app.use(express.static(path.join(__dirname, "/public"))); //STATIC FILES SERVE 
+
+//SESSION OPTIONS: 
+// session create hoga => client browser me ek cookie milegi 
+// secret code => session encrypt hoga
+// cookie 7 din me expire hoga
 
 const sessionOptions = {
   secret: "mysupersecretcode",
@@ -54,18 +62,22 @@ app.get("/", (req, res) => {
 });
 
 app.use(session(sessionOptions));
-app.use(flash(""));
+app.use(flash("")); //SUCCESS/ERROR MSG STORE KRNE KE LIYE
 
+//PASSPORT CONFIG
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 
+ //SERIALIZE/DE-SERIALIZE: user ko session me store aur wapas fetch krna
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+//LOCAL VARIABLE MIDDLEWARE: har ejs file ke liye success/error msg available hote h
 app.use((req,res,next)=>{
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
   next();
 });
 
@@ -87,12 +99,13 @@ app.use("/", userRouter);
 //     next(new ExpressError(404, "Page Not Found"));
 // });
 
+//ERROR HANDLER: agar error aaya toh ek page render karega
 app.use((err, req, res, next) => {
   let { statusCode = 500, message = "Something went wrong!" } = err;
   res.render("error.ejs", { message });
 });
 
-//LISTEN KARVANE KA ROUTE
+//SERVER LISTEN: server localhost:8080 pe run karega
 app.listen(8080, () => {
   console.log("Server is listening to port 8080");
 });
