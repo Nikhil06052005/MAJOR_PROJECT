@@ -11,6 +11,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -22,7 +23,7 @@ const reviewRouter = require("./routes/review.js"); //REVIEWS RELATED ROUTES
 const userRouter = require("./routes/user.js"); //LOGIN/REGISTER/LOGOUT ROUTES
 
 //MONGO_DB SE CONNECTION KA CHIJ H YHA PE
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URL;
 
 //AGAR CONNECT HUA TOH "CONNECTED TO DB PRINT HOGA" VARNA "ERROR" PRINT HOGA
 main()
@@ -33,7 +34,7 @@ main()
     console.log(err);
   });
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
 }
 
 //APP CONFIG
@@ -44,13 +45,27 @@ app.use(methodOverride("_method")); //PUT/DELETE REQUESTS ALLOW
 app.engine("ejs", ejsMate); //LAYOUTS/PARTIALS ALLOW
 app.use(express.static(path.join(__dirname, "/public"))); //STATIC FILES SERVE 
 
+
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: "process.env.SECRET",
+  }, 
+  touchAfter: 24 * 60 * 60 //time period in seconds
+});
+
+store.on("error", ()=>{
+  console.log("ERROR IN MONGO SESSION STORE", err);
+});
+
 //SESSION OPTIONS: 
 // session create hoga => client browser me ek cookie milegi 
 // secret code => session encrypt hoga
 // cookie 7 din me expire hoga
 
 const sessionOptions = {
-  secret: "mysupersecretcode",
+  store,
+  secret: "process.env.SECRET",
   resave: false,
   saveUninitialized: true,
   cookie:{
@@ -60,10 +75,12 @@ const sessionOptions = {
   }
 };
 
-//HOME ROUTE
-app.get("/", (req, res) => {
-  res.send("Hi, I am root");
-});
+// //HOME ROUTE
+// app.get("/", (req, res) => {
+//   res.send("Hi, I am root");
+// });
+
+
 
 app.use(session(sessionOptions));
 app.use(flash("")); //SUCCESS/ERROR MSG STORE KRNE KE LIYE
