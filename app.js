@@ -24,6 +24,8 @@ const userRouter = require("./routes/user.js"); //LOGIN/REGISTER/LOGOUT ROUTES
 
 //MONGO_DB SE CONNECTION KA CHIJ H YHA PE
 const dbUrl = process.env.ATLASDB_URL;
+// const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+
 
 //AGAR CONNECT HUA TOH "CONNECTED TO DB PRINT HOGA" VARNA "ERROR" PRINT HOGA
 main()

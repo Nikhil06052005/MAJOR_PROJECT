@@ -29,6 +29,10 @@ const listingSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+  category: {
+  type: String,
+  enum: ["Trending","Rooms","Iconic Cities","Mountains","Castles","Amazing Pools","Camping","Farms","Arctic","Domes","Boats"]
+},
 });
 
 //MIDDLEWARE (post hook):jb koi listing delete hoti h => uske sare associated reviews bhi delete ho jaate h automatically.
@@ -37,6 +41,9 @@ listingSchema.post("findOneAndDelete", async (listing) => {
     await Review.deleteMany({ _id: { $in: listing.review } });
   }
 });
+
+
+
 
 //MODEL
 const Listing = mongoose.model("Listing", listingSchema);
