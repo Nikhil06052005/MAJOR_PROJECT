@@ -75,12 +75,10 @@ const sessionOptions = {
   }
 };
 
-// //HOME ROUTE
-// app.get("/", (req, res) => {
-//   res.send("Hi, I am root");
-// });
-
-
+//HOME ROUTE
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 
 app.use(session(sessionOptions));
 app.use(flash("")); //SUCCESS/ERROR MSG STORE KRNE KE LIYE
